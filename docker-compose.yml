@@ -1,0 +1,70 @@
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    env_file:
+      - environments/local/.env
+    ports:
+      - "5432:5432"
+    profiles:
+      - core
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      retries: 5
+
+  api:
+    build: ./api
+    env_file:
+      - environments/local/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    profiles:
+      - app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 10s
+      retries: 5
+
+  web:
+    build: ./web
+    ports:
+      - "3000:80"
+    profiles:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost"]
+      interval: 10s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./monitoring/config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+    profiles:
+      - monitoring
+
+  loki:
+    image: grafana/loki:2.9.3
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    profiles:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail
+    profiles:
+      - monitoring
