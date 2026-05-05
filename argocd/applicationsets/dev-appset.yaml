@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: dev-apps
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: dev
+            path: k8s/overlays/dev
+
+  template:
+    metadata:
+      name: '{{name}}-app'
+    spec:
+      project: devops-project
+
+      source:
+        repoURL: https://github.com/kamal-singh17/devops-assignment
+        targetRevision: main
+        path: '{{path}}'
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
