@@ -2,6 +2,7 @@ resources:
   - ../../base/api
   - ../../base/web
   - ../../base/postgres
+  - ../../base/networkpolicy
 
 nameSuffix: -dev
 
