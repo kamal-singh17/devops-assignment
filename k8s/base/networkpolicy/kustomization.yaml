@@ -1,0 +1,5 @@
+resources:
+  - deny-all.yaml
+  - allow-web-to-api.yaml
+  - allow-api-to-postgres.yaml
+  - allow-prometheus.yaml

@@ -1,0 +1,9 @@
+resources:
+  - ../../base/api
+  - ../../base/web
+  - ../../base/postgres
+
+nameSuffix: -qat
+
+patches:
+  - path: replica-patch.yaml
