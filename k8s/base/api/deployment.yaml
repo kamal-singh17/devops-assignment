@@ -18,7 +18,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: api
-          image: devops-assignment-api:latest
+          image: devops-assignment-api:v2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
