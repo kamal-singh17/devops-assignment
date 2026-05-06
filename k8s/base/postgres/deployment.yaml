@@ -16,11 +16,23 @@ spec:
     spec:
       securityContext:
         fsGroup: 999
+
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 999:999 /var/lib/postgresql/data"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+
       containers:
         - name: postgres
           image: postgres:15-alpine
           ports:
             - containerPort: 5432
+
           env:
             - name: POSTGRES_DB
               value: appdb
@@ -28,10 +40,26 @@ spec:
               value: admin
             - name: POSTGRES_PASSWORD
               value: admin
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           resources:
             requests:
               cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "200m"
+              cpu: "500m"
               memory: "256Mi"
+
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+
+      volumes:
+        - name: pgdata
+          emptyDir: {}

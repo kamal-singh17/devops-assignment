@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: web
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "20"
 spec:
   replicas: 1
   selector:
@@ -14,20 +14,32 @@ spec:
       labels:
         app: web
     spec:
-      securityContext:
-        runAsNonRoot: true
       containers:
         - name: web
-          image: devops-assignment-web:latest
-          imagePullPolicy: IfNotPresent
+          image: devops-assignment-web:v1   # change if needed
           ports:
-            - containerPort: 8080
+            - containerPort: 80
+
           securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
             allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
           resources:
             requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
               cpu: "100m"
               memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          # ⚠️ IMPORTANT for nginx/react appp
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: tmp
+          emptyDir: {}

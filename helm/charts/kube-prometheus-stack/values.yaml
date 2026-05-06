@@ -1,0 +1,22 @@
+# Partial values.yaml for kube-prometheus-stack
+kubelet:
+  enabled: true
+nodeExporter:
+  enabled: true
+kubeStateMetrics:
+  enabled: true
+
+# To scrape the API server /metrics
+kubeApiServer:
+  enabled: true
+
+# RabbitMQ (Assuming you use the RabbitMQ Operator which has built-in Prometheus support)
+# We add an additional ServiceMonitor to target the RabbitMQ pods
+additionalServiceMonitors:
+  - name: rabbitmq-monitor
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: rabbitmq
+    endpoints:
+      - port: metrics # RabbitMQ default port is 15692
+        path: /metrics

@@ -1,9 +1,0 @@
-apiVersion: v2
-name: loki-wrapper
-description: Wrapper for logging
-version: 0.1.0
-
-dependencies:
-  - name: loki
-    version: "*"
-    repository: https://grafana.github.io/helm-charts

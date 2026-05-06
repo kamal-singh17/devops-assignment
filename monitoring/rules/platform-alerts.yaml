@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: platform-health-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: platform.rules
+    rules:
+    - alert: HighNodeCPU
+      expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High CPU usage on {{ $labels.instance }}"
+        description: "Node CPU usage is above 80% for more than 5 minutes."
+    
+    - alert: PodFrequentlyRestarting
+      expr: increase(kube_pod_container_status_restarts_total[15m]) > 3
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod {{ $labels.pod }} is restarting frequently"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} restarted {{ $value }} times in 15m."
